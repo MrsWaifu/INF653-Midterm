@@ -1,17 +1,16 @@
 <?php 
   class Database {
 
-    private $hostname = 'dpg-cg1q5s5269vfsntb9vm0-a';
-    private $database = 'quotesdb_el48';
-    private $username = 'quotesdb_el48_user';
-    private $password = 'TD8oZ2yYfKXahTf5dVkr9l0p4XJDHPOz';
-
+    private $hostname = 'localhost';
+    private $port = '5432';
+    private $database = 'quotesdb';
+    private $username = 'postgres';
+    private $password = 'postgres';
     private $conn;
 
     // DB Connect
     public function connect() {
-      $url = getenv('postgres://quotesdb_el48_user:TD8oZ2yYfKXahTf5dVkr9l0p4XJDHPOz@dpg-cg1q5s5269vfsntb9vm0-a.oregon-postgres.render.com/quotesdb_el48');
-      $dbparts = parse_url($url);
+      $this->conn = null;
   
       $hostname = $dbparts['host'];
       $username = $dbparts['user'];
