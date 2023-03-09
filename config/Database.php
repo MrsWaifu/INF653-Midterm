@@ -14,6 +14,7 @@
              $this->dbname = getenv('dbname');
              $this->host = getenv('host');
              $this->port = getenv('port');
+             $this->conn = $db;
 
          }
          
