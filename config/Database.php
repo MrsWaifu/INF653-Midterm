@@ -9,15 +9,15 @@
 
 
          public function __construct() {
-             $this->username = getenv('username');
-             $this->password = getenv('password');
-             $this->dbname = getenv('dbname');
-             $this->host = getenv('host');
-             $this->port = getenv('port');
+             $this->username = getenv('USERNAME');
+             $this->password = getenv('PASSWORD');
+             $this->dbname = getenv('DBNAME');
+             $this->host = getenv('HOST');
+             $this->port = getenv('PORT');
 
          }
          
-        //DB connect for Render  
+        //DB connect for Render
          public function connect () {
              if ($this->conn) {
                  return $this->conn;
