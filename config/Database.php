@@ -8,7 +8,7 @@
         private $conn;
 
 
-         public function __construct() {
+         public function __construct($db) {
              $this->username = getenv('username');
              $this->password = getenv('password');
              $this->dbname = getenv('dbname');
