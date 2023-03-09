@@ -17,7 +17,7 @@
 
          }
          
-        //DB connect for Render
+        //DB connect for Render  
          public function connect () {
              if ($this->conn) {
                  return $this->conn;
