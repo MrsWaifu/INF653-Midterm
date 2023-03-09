@@ -8,13 +8,12 @@
         private $conn;
 
 
-         public function __construct($db) {
+         public function __construct() {
              $this->username = getenv('username');
              $this->password = getenv('password');
              $this->dbname = getenv('dbname');
              $this->host = getenv('host');
              $this->port = getenv('port');
-             $this->conn = $db;
 
          }
          
