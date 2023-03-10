@@ -1,40 +1,32 @@
 <?php
-  //Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Methods, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Author.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//required files
+require('../../config/Database.php');
+require('../../models/Author.php');
 
-  $author = new Author($db);
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $data = json_decode(file_get_contents("php://input"));
+//Instantiate Author object
+$author = new Author($db);
 
-  if (!property_exists($data, 'author')) {
+//Get raw posted data
+$data = json_decode(file_get_contents("php://input"));
+
+if (isset($data->author)) {
+    $author->author = $data->author;
+    $author->create();
     echo json_encode(
-      array('message' => 'Missing Required Parameters')
+        array("id"=> $db->lastInsertId(), "author"=>$author->author)
     );
-    return;
-  }
-
-  $author->author = $data->author;
-
-  $id = $author->create();
-  if($id != -1) {
+} else {
     echo json_encode(
-      array(
-        'id' => $id,
-        'author' => $author->author
-      )
+        array('message' => 'Missing Required Parameters')
     );
-  } else {
-    echo json_encode(
-      array('message' => 'Author Not Created')
-    );
-  }
-
+}

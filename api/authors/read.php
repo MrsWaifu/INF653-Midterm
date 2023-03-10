@@ -1,32 +1,50 @@
-<?php 
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
+<?php
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Author.php';
+//required files
+require('../../config/Database.php');
+require('../../models/Author.php');
 
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $author = new Author($db);
+//Instantiate blog post object
+$author = new Author($db);
 
-  $result = $author->read();
-  
-  $num = $result->rowCount();
+//author query
+$result = $author->read();
 
-  if($num > 0) {
-        $author_arr = array();
+//Get row count
+$num = $result->rowCount();
 
-        while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-          extract($row);
-          array_push($author_arr, (object)['id' => $id, 'author' => $author]);
-        }
-        echo json_encode($author_arr);
+//Check for authors
+if($num > 0) {
+    //Author array
+    $author_arr = array();
+    //$author_arr['data'] = array();
 
-  } else {
-        echo json_encode(
-          array('message' => 'No Authors Found')
+    while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
+
+        $author_item = array(
+            'id'=>$id,
+            'author'=>$author
         );
-  }
+
+        //Push data
+        array_push($author_arr, $author_item);
+    }
+
+    //turn to JSON and output data
+    echo (json_encode($author_arr));
+
+} else {
+    echo json_encode(
+        array('message' => 'No Authors Found')
+    );
+}
+
+?>

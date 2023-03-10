@@ -1,40 +1,34 @@
 <?php
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Methods, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Category.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//required files
+require('../../config/Database.php');
+require('../../models/Category.php');
 
-  $category = new Category($db);
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $data = json_decode(file_get_contents("php://input"));
+//Instantiate Category object
+$category = new Category($db);
 
-  if (!property_exists($data, 'category')) {
+//Get raw posted data
+$data = json_decode(file_get_contents("php://input"));
+
+//need to work with isset here I think
+
+if (isset($data->category)) {
+    $category->category = $data->category;
+    $category->create();
     echo json_encode(
-      array('message' => 'Missing Required Parameters')
+        array("id"=> $db->lastInsertId(), "category"=>$category->category)
     );
-    return;
-  }
-
-  $category->category = $data->category;
-
-  $id = $category->create();
-  if($id != -1) {
+} else {
     echo json_encode(
-      array(
-        'id' => $id,
-        'category' => $category->category
-      )
+        array('message' => 'Missing Required Parameters')
     );
-  } else {
-    echo json_encode(
-      array('message' => 'Category Not Created')
-    );
-  }
-
+}

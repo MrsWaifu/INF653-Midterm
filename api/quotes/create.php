@@ -1,52 +1,39 @@
 <?php
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: POST');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Methods, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Quote.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//required files
+require('../../config/Database.php');
+require('../../models/Quote.php');
 
-  $quote = new Quote($db);
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $data = json_decode(file_get_contents("php://input"));
+//Instantiate Category object
+$quote = new Quote($db);
 
-  if (!property_exists($data, 'quote') || !property_exists($data, 'authorId') || !property_exists($data, 'categoryId')) {
+//Get raw posted data
+$data = json_decode(file_get_contents("php://input"));
+
+// looking to see if author id and category_id exist in db - if not, print message and exit()
+
+
+if(isset($data->quote) and isset($data->author_id) and isset($data->category_id)) {
+    $quote->quote = $data->quote;
+    $quote->author_id = $data->author_id;
+    $quote->category_id = $data->category_id;
+
+    $quote->create();
     echo json_encode(
-      array('message' => 'Missing Required Parameters')
+        array("id"=> $db->lastInsertId(), "quote"=>$quote->quote, "author_id"=>$quote->author_id, "category_id"=>$quote->category_id)
     );
-    return;
-  }
-
-  $quote->quote = $data->quote;
-  $quote->authorId = $data->authorId;
-  $quote->categoryId = $data->categoryId;
-
-  $id = $quote->create();
-  if($id > 0) {
+} else {
     echo json_encode(
-      array(
-        'id' => $id,
-        'quote' => $quote->quote,
-        'authorId' => $quote->authorId,
-        'categoryId' => $quote->categoryId
-      )
+        array('message' => 'Missing Required Parameters')
     );
-  } else if($id == -2){
-    echo json_encode(
-      array('message' => 'authorId Not Found')
-    );
-  }else if($id == -3){
-    echo json_encode(
-      array('message' => 'categoryId Not Found')
-    );
-  }else {
-    echo json_encode(
-      array('message' => 'Quote Not Created')
-    );
-  }
-
+}
+    

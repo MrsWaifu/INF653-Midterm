@@ -2,40 +2,39 @@
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
     $method = $_SERVER['REQUEST_METHOD'];
+    
+    //Getting URL that is being passed
+    $uri = $_SERVER['REQUEST_URI'];
+    //echo $uri; // Outputs: URI
+
+    //$idPassed = parse_url($uri, PHP_URL_QUERY);
+
     if ($method === 'OPTIONS') {
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
         header('Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With');
+        exit();
     }
 
-    include_once '../../config/Database.php';
-    include_once '../../models/Quote.php';
 
-    $database = new Database();
-    $db = $database->connect();
-
-    $quote = new Quote($db);
-    
-    $method = $_SERVER['REQUEST_METHOD'];
-
-    switch ($method) {
-    case 'PUT':
-        require 'update.php';  
-        break;
-    case 'POST':
-        require 'create.php'; 
-        break;
-    case 'DELETE':
-        require 'delete.php'; 
-        break;
-    case 'GET':
-        if(isset($_GET['id'])) {
-            require 'read_single.php';
+    if ($method === 'GET') {
+        //checking URL if it has a query statement like id=1
+        if (parse_url($uri, PHP_URL_QUERY)){
+            require('read_single.php');
+        } else {
+            require('read.php');
         }
-        else{
-            require 'read.php';
-        }
-        break;
-    default:
-        echo 'ERROR'; 
-        break;
+        
     }
+
+    else if ($method === 'POST') {
+        require('create.php');
+    }
+
+    else if ($method === 'PUT') {
+        require('update.php');
+    }
+
+    else if ($method === 'DELETE') {
+        require('delete.php');
+    }
+?>

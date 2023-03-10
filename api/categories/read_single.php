@@ -1,27 +1,41 @@
 <?php
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
+//required files
+require('../../config/Database.php');
+require('../../models/Category.php');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Category.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $category = new Category($db);
+//Instantiate blog post object
+$category = new Category($db);
 
-  $category->id = isset($_GET['id']) ? $_GET['id'] : die();
+//Get id from URL
+$category->id = isset($_GET['id']) ? $_GET['id'] : die();
 
-  $category->read_single();
+//author query
+$category->read_single();
 
-  if($category->category){
-    $cat_arr = array(
-      'id' => $category->id,
-      'category' => $category->category
-    );
-    print_r(json_encode($cat_arr));
-  }else{
-    print_r(json_encode(array('message'=> 'categoryId Not Found')));
-  }
+//Create array
+$category_arr = array(
+    'id' => $category->id,
+    'category' => $category->category
+);
+
+if($category->category !== null){
+    //Change to JSON data
+    print_r(json_encode($category_arr, JSON_NUMERIC_CHECK));
+    }
+
+else
+    {
+        echo json_encode(
+            array('message' => 'category_id Not Found')
+        );
+    }
+
+?>

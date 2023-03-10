@@ -1,45 +1,34 @@
 <?php
-  //Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: PUT');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: PUT');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Methods, Content-Type, Access-Control-Allow-Methods, Authorization, X-Requested-With');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Category.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//required files
+require('../../config/Database.php');
+require('../../models/Category.php');
 
-  $category = new Category($db);
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $data = json_decode(file_get_contents("php://input"));
+//Instantiate Category object
+$category = new Category($db);
 
-  if (!property_exists($data, 'category') || !property_exists($data, 'id')) {
+//Get raw posted data
+$data = json_decode(file_get_contents("php://input"));
+
+
+if (isset($data->category)) {
+    $category->id = $data->id;
+    $category->category = $data->category;
+    $category->update();
     echo json_encode(
-      array('message' => 'Missing Required Parameters')
+        array("id"=>$category->id, "category"=>$category->category)
     );
-    return;
-  }
-
-  $category->id = $data->id;
-
-  $category->category = $data->category;
-
-  if($category->update()) {
+} else {
     echo json_encode(
-      array('id' => $category->id, 'category' => $category->category)
+        array('message' => 'Missing Required Parameters')
     );
-  } else {
-      $category->category = -1;
-      $category->read_single(); 
-      if($category->category != -1){
-        echo json_encode(
-          array('id' => $category->id, 'category' => $category->category)
-        );
-      }else{
-      echo json_encode(
-        array('message' => 'categoryId Not Found')
-      );
-    }
-  }
+}

@@ -1,49 +1,52 @@
 <?php
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: DELETE');
-  header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Quote.php';
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//required files
+require('../../config/Database.php');
+require('../../models/Quote.php');
 
-  $quote = new Quote($db);
-  
-  $quote->categoryId = isset($_GET['categoryId']) ? $_GET['categoryId'] : -1;
-  $quote->authorId = isset($_GET['authorId']) ? $_GET['authorId'] : -1;
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  if ($quote->categoryId != -1 && $quote->authorId != -1 ) {
-    $result = $quote->readBoth();
-  }else if ($quote->categoryId != -1) {
-    $result = $quote->readCategory();
-  }else if ($quote->authorId != -1 ) {
-    $result = $quote->readAuthor();
-  }else{
-    $result = $quote->read();
-  }
+//Instantiate quote object
+$quote = new Quote($db);
 
-  $num = $result->rowCount();
+//category query
+$result = $quote->read();
 
-  if($num > 0) {
-        $quote_arr = array();
+//Get row count
+$num = $result->rowCount();
 
-        while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-          extract($row);
-          array_push($quote_arr, (object)[
-            'id' => $id, 
+//Check for Quotes
+if($num > 0) {
+    //Quote array
+    $quote_arr = array();
+    //$quote_arr['data'] = array();
+
+    while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
+
+        $quote_item = array(
+            'id' => $id,
             'quote' => $quote,
             'author' => $author,
             'category' => $category
-          ]);
-        }
-        echo json_encode($quote_arr);
+        );
 
-  } else {
+        //Push data
+        array_push($quote_arr, $quote_item);
+    }
+
+    //turn to JSON and output data
+    echo (json_encode($quote_arr));
+
+} else {
     echo json_encode(
-      array('message' => 'No Quotes Found')
+        array('message' => 'No Quotes Found')
     );
-  }
+}
+
+?>

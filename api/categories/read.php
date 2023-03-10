@@ -1,33 +1,52 @@
-<?php 
-  // Headers
-  header('Access-Control-Allow-Origin: *');
-  header('Content-Type: application/json');
+<?php
+//Headers
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
 
-  include_once '../../config/Database.php';
-  include_once '../../models/Category.php';
+//required files
+require('../../config/Database.php');
+require('../../models/Category.php');
 
-  // Instantiate DB & connect
-  $database = new Database();
-  $db = $database->connect();
+//Database
+$database = new Database();
+$db = $database->connect();
 
-  $category = new Category($db);
+//Instantiate blog category object
+$category = new Category($db);
 
-  $result = $category->read();
-  
-  $num = $result->rowCount();
+//category query
+$result = $category->read();
 
-  if($num > 0) {
-        $cat_arr = array();
+//Get row count
+$num = $result->rowCount();
 
-        while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-          extract($row);
-          array_push($cat_arr, (object)['id' => $id, 'category' => $category]);
-        }
+//Check for Categories
+if($num > 0) {
+    //Author array
+    $category_arr = array();
+    //$category_arr['data'] = array();
 
-        echo json_encode($cat_arr);
+    while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        extract($row);
 
-  } else {
-        echo json_encode(
-          array('message' => 'No Categories Found')
+        $category_item = array(
+            'id'=>$id,
+            'category'=>$category
         );
-  }
+
+        //Push data
+        array_push($category_arr, $category_item);
+    }
+
+    if ($category_arr){
+    //turn to JSON and output data
+    echo (json_encode($category_arr));
+    }
+
+} else {
+    echo json_encode(
+        array('message' => 'No Categories Found')
+    );
+}
+
+?>
