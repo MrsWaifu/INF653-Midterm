@@ -1,40 +1,40 @@
 <?php
-  // Headers
+  //Headers
   header('Access-Control-Allow-Origin: *');
   header('Content-Type: application/json');
-  header('Access-Control-Allow-Methods: DELETE');
+  header('Access-Control-Allow-Methods: POST');
   header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
   include_once '../../config/Database.php';
-  include_once '../../models/Category.php';
+  include_once '../../models/Author.php';
   // Instantiate DB & connect
   $database = new Database();
   $db = $database->connect();
 
-  $category = new Category($db);
-  
+  $author = new Author($db);
+
   $data = json_decode(file_get_contents("php://input"));
 
-  if (!property_exists($data, 'id')) {
+  if (!property_exists($data, 'author')) {
     echo json_encode(
       array('message' => 'Missing Required Parameters')
     );
     return;
   }
 
-  $category->id = $data->id;
+  $author->author = $data->author;
 
-  $response = $category->delete();
-  if($response > 0) {
+  $id = $author->create();
+  if($id != -1) {
     echo json_encode(
-      array('id' => $category->id)
+      array(
+        'id' => $id,
+        'author' => $author->author
+      )
     );
-  } else if($response == -1){
+  } else {
     echo json_encode(
-      array('message' => 'Cant delete: foreign key in use')
-    );
-  }else {
-    echo json_encode(
-      array('message' => 'categoryId Not Found')
+      array('message' => 'Author Not Created')
     );
   }
+
