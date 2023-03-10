@@ -13,7 +13,6 @@
         public $category_id;
 
         //Constructor with DB
-
         public function __construct($db) {
             $this->conn = $db;
         }
@@ -44,7 +43,6 @@
         }
 
         //Get single quote
-
         public function read_single() {
             
             if(isset($_GET['id'])){
@@ -207,6 +205,38 @@
 
         //Create Quote
         public function create() {
+            //query if author_id exists
+            $queryAuthorId = "SELECT quote
+                            FROM {$this->table} 
+                            WHERE author_id = :author_id";
+            
+            $stmt = $this->conn->prepare($queryAuthorId);
+            $stmt->bindParam(':author_id', $this->author_id);
+            if($stmt->execute()){
+                    if ($stmt->rowCount() === 0){
+                    echo json_encode(
+                        array('message' => 'author_id Not Found')
+                    );
+                    exit();
+                }
+            }
+
+            //query if category_id exists
+            $queryCategoryID = "SELECT quote
+                            FROM {$this->table} 
+                            WHERE category_id = :category_id";
+            
+            $stmt = $this->conn->prepare($queryCategoryID);
+            $stmt->bindParam(':category_id', $this->category_id);
+            if($stmt->execute()){
+                    if ($stmt->rowCount() === 0){
+                    echo json_encode(
+                        array('message' => 'category_id Not Found')
+                    );
+                    exit();
+                }
+            }
+
             //create query
             $query = "INSERT INTO {$this->table} (quote, author_id, category_id)
             VALUES (:quote, :author_id, :category_id)";
@@ -260,16 +290,52 @@
 
         //Update Quote
         public function update() {
+            //query if id exists
+            $queryId = "SELECT quote
+                            FROM {$this->table} 
+                            WHERE id = :id";
+            
+            $stmt = $this->conn->prepare($queryId);
+            $stmt->bindParam(':id', $this->id);
+            if($stmt->execute()){
+                    if ($stmt->rowCount() === 0){
+                    echo json_encode(
+                        array('message' => 'No Quotes Found')
+                    );
+                    exit();
+                }
+            }
+
             //query if author_id exists
-            $queryAuthorId = "SELECT id
+            $queryAuthorId = "SELECT quote
                             FROM {$this->table} 
                             WHERE author_id = :author_id";
+            
             $stmt = $this->conn->prepare($queryAuthorId);
             $stmt->bindParam(':author_id', $this->author_id);
-            if(! $stmt->execute()){
-                echo json_encode(
-                    array('message' => 'author_id Not Found')
-                );
+            if($stmt->execute()){
+                    if ($stmt->rowCount() === 0){
+                    echo json_encode(
+                        array('message' => 'author_id Not Found')
+                    );
+                    exit();
+                }
+            }
+
+            //query if category_id exists
+            $queryCategoryID = "SELECT quote
+                            FROM {$this->table} 
+                            WHERE category_id = :category_id";
+            
+            $stmt = $this->conn->prepare($queryCategoryID);
+            $stmt->bindParam(':category_id', $this->category_id);
+            if($stmt->execute()){
+                    if ($stmt->rowCount() === 0){
+                    echo json_encode(
+                        array('message' => 'category_id Not Found')
+                    );
+                    exit();
+                }
             }
 
             //Update query
@@ -289,7 +355,7 @@
             if ($stmt->execute()) {
                 return true;
             }
-            //print print
+            //print error
             else{           
                 echo json_encode(
                     array('message' => 'No Quotes Found')
